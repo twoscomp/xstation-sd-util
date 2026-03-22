@@ -35,7 +35,12 @@ def _check_rar_tool(source_dir: Path | None, is_smb: bool) -> None:
             sys.exit(1)
 
 
-@click.command()
+@click.group()
+def cli() -> None:
+    """xStation SD card utility."""
+
+
+@cli.command("extract")
 @click.argument("source")
 @click.argument("dest", type=click.Path())
 @click.option("-n", "--dry-run", is_flag=True, help="Show what would happen, don't extract.")
@@ -53,7 +58,7 @@ def _check_rar_tool(source_dir: Path | None, is_smb: bool) -> None:
 @click.option("--temp-dir", "temp_dir", default=None, type=click.Path(), help="Override temp dir.")
 @click.option("-v", "--verbose", is_flag=True, help="Show each file as extracted.")
 @click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompt.")
-def main(
+def extract(
     source: str,
     dest: str,
     dry_run: bool,
@@ -112,3 +117,51 @@ def main(
         temp_dir=temp_path,
         yes=yes,
     )
+
+
+@cli.command("setup")
+@click.argument("mountpoint", type=click.Path())
+@click.option("--firmware", "firmware_path", default=None, type=click.Path(), help="Local firmware directory or .zip.")
+@click.option("--skip-firmware", is_flag=True, help="Skip firmware installation.")
+@click.option("-n", "--dry-run", is_flag=True, help="Show what would happen, don't modify anything.")
+def format_cmd(
+    mountpoint: str,
+    firmware_path: str | None,
+    skip_firmware: bool,
+    dry_run: bool,
+) -> None:
+    """Set up xStation system directory on an already-formatted, mounted SD card.
+
+    MOUNTPOINT: Path to the mounted SD card root (e.g. /run/media/user/sdcard)
+
+    The card should already be formatted as FAT32 and mounted before running
+    this command.
+    """
+    from .formatter import create_system_dir
+    from .firmware import install_firmware
+
+    if not Path(mountpoint).is_dir():
+        console.print(f"[red]Not a directory:[/red] {mountpoint}")
+        sys.exit(1)
+
+    try:
+        system_dir = create_system_dir(Path(mountpoint), dry_run)
+    except NotADirectoryError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        sys.exit(1)
+
+    firmware_path_obj = Path(firmware_path) if firmware_path else None
+    try:
+        install_firmware(system_dir, firmware_path_obj, skip_firmware, dry_run)
+    except FileNotFoundError as e:
+        console.print(f"[red]Firmware source not found:[/red] {e}")
+        sys.exit(1)
+    except (RuntimeError, ValueError) as e:
+        console.print(f"[red]Firmware installation failed:[/red] {e}")
+        sys.exit(1)
+
+    console.print("[green]Done![/green] SD card ready for xStation.")
+
+
+# Keep backward-compatible alias so existing code importing `main` still works.
+main = cli

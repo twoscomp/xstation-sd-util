@@ -19,7 +19,7 @@ smb = ["smbprotocol>=1.12"]
 dev = ["pytest>=8.0", "pytest-mock>=3.12", "mypy>=1.9", "ruff>=0.4"]
 
 [project.scripts]
-xstation-sd-util = "xstation_sd_util.cli:main"
+xstation-sd-util = "xstation_sd_util.cli:cli"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/xstation_sd_util"]
