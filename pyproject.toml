@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "xstation-sd-util"
+version = "0.1.0"
+description = "CLI tool to set up an xStation (PS1 ODE) SD card from game archives"
+requires-python = ">=3.10"
+dependencies = [
+    "click>=8.1",
+    "rich>=13.0",
+    "py7zr>=0.21",
+    "rarfile>=4.1",
+]
+
+[project.optional-dependencies]
+smb = ["smbprotocol>=1.12"]
+dev = ["pytest>=8.0", "pytest-mock>=3.12", "mypy>=1.9", "ruff>=0.4"]
+
+[project.scripts]
+xstation-sd-util = "xstation_sd_util.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/xstation_sd_util"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
