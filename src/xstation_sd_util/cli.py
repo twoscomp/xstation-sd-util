@@ -121,26 +121,83 @@ def extract(
 
 @cli.command("setup")
 @click.argument("mountpoint", type=click.Path())
-@click.option("--firmware", "firmware_path", default=None, type=click.Path(), help="Local firmware directory or .zip.")
+@click.option("--format", "format_device_path", default=None, metavar="DEVICE",
+              help="Block device to format before setup (e.g. /dev/sdc). Requires root.")
+@click.option("--label", default="xstation", show_default=True,
+              help="FAT32 volume label (only used with --format).")
+@click.option("--firmware", "firmware_path", default=None, type=click.Path(),
+              help="Local firmware directory or .zip.")
 @click.option("--skip-firmware", is_flag=True, help="Skip firmware installation.")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompt (only used with --format).")
 @click.option("-n", "--dry-run", is_flag=True, help="Show what would happen, don't modify anything.")
 def format_cmd(
     mountpoint: str,
+    format_device_path: str | None,
+    label: str,
     firmware_path: str | None,
     skip_firmware: bool,
+    yes: bool,
     dry_run: bool,
 ) -> None:
-    """Set up xStation system directory on an already-formatted, mounted SD card.
+    """Set up an xStation SD card.
 
     MOUNTPOINT: Path to the mounted SD card root (e.g. /run/media/user/sdcard)
 
-    The card should already be formatted as FAT32 and mounted before running
-    this command.
+    Without --format the card must already be formatted and mounted.
+    With --format DEVICE the card is formatted and mounted first.
     """
-    from .formatter import create_system_dir
+    from .formatter import (
+        check_format_sd,
+        create_system_dir,
+        format_device,
+        mount_device,
+        unmount_device,
+    )
     from .firmware import install_firmware
 
-    if not Path(mountpoint).is_dir():
+    if format_device_path is not None:
+        check_format_sd()
+
+        if not yes and not dry_run:
+            console.print(
+                f"[bold red]WARNING:[/bold red] This will erase all data on {format_device_path}.\n"
+                "Type [bold]yes[/bold] to confirm:"
+            )
+            if input().strip() != "yes":
+                console.print("Aborted.")
+                sys.exit(1)
+
+        try:
+            unmount_device(format_device_path, dry_run)
+        except PermissionError as e:
+            console.print(f"[red]Permission denied while unmounting:[/red] {e}")
+            sys.exit(1)
+        except RuntimeError as e:
+            console.print(f"[red]Failed to unmount:[/red] {e}")
+            sys.exit(1)
+
+        try:
+            format_device(format_device_path, label, dry_run)
+        except FileNotFoundError as e:
+            console.print(f"[red]Device not found:[/red] {e}")
+            sys.exit(1)
+        except PermissionError as e:
+            console.print(f"[red]Permission denied:[/red] {e}")
+            sys.exit(1)
+        except RuntimeError as e:
+            console.print(f"[red]Format failed:[/red] {e}")
+            sys.exit(1)
+
+        try:
+            mount_device(format_device_path, mountpoint, dry_run)
+        except PermissionError as e:
+            console.print(f"[red]Permission denied while mounting:[/red] {e}")
+            sys.exit(1)
+        except RuntimeError as e:
+            console.print(f"[red]Failed to mount:[/red] {e}")
+            sys.exit(1)
+
+    elif not dry_run and not Path(mountpoint).is_dir():
         console.print(f"[red]Not a directory:[/red] {mountpoint}")
         sys.exit(1)
 

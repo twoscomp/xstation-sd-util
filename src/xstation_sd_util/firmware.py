@@ -71,16 +71,16 @@ def download_latest_firmware(dest_dir: Path, dry_run: bool) -> None:
 
 
 def _extract_firmware_from_zip(zip_path: Path, dest_dir: Path) -> None:
-    with zipfile.ZipFile(zip_path) as zf:
-        names = zf.namelist()
-        for file_name in FIRMWARE_FILES:
-            match = next(
-                (n for n in names if Path(n).name == file_name),
-                None,
-            )
-            if match is None:
-                raise RuntimeError(f"'{file_name}' not found inside firmware zip")
-            extracted = Path(zf.extract(match, dest_dir))
-            flat_dest = dest_dir / file_name
-            if extracted != flat_dest:
-                shutil.move(str(extracted), flat_dest)
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        with zipfile.ZipFile(zip_path) as zf:
+            names = zf.namelist()
+            for file_name in FIRMWARE_FILES:
+                match = next(
+                    (n for n in names if Path(n).name == file_name),
+                    None,
+                )
+                if match is None:
+                    raise RuntimeError(f"'{file_name}' not found inside firmware zip")
+                zf.extract(match, tmp_path)
+                shutil.copy2(tmp_path / match, dest_dir / file_name)

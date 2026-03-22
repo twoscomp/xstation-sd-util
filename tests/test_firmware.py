@@ -91,6 +91,22 @@ def test_copy_firmware_from_zip_nested(tmp_path):
     assert (dest / "loader.bin").read_bytes() == b"ldr"
 
 
+def test_copy_firmware_from_zip_no_nested_dir_created(tmp_path):
+    """Zip entries with a leading dir (e.g. 00xstation/) must not create a subdir in dest."""
+    zip_path = _make_zip(
+        tmp_path,
+        {"update.bin": b"upd", "loader.bin": b"ldr"},
+        prefix="00xstation/",
+    )
+    dest = tmp_path / "dest"
+    dest.mkdir()
+    copy_firmware_from_path(zip_path, dest, dry_run=False)
+
+    assert (dest / "update.bin").read_bytes() == b"upd"
+    assert (dest / "loader.bin").read_bytes() == b"ldr"
+    assert not (dest / "00xstation").exists()
+
+
 # ---------------------------------------------------------------------------
 # copy_firmware_from_path — edge cases
 # ---------------------------------------------------------------------------
