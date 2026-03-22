@@ -67,7 +67,8 @@ def _space_check(
         console.print(f"[bold]{n} {game_word} to extract[/bold]  ·  space needed: unknown")
         return
 
-    free = shutil.disk_usage(dest).free
+    usage_path = dest if dest.exists() else dest.parent
+    free = shutil.disk_usage(usage_path).free
     needed_str = _fmt_bytes(total)
     free_str = _fmt_bytes(free)
 
@@ -93,8 +94,6 @@ def process(
     yes: bool = False,
 ) -> None:
     tmp_base = temp_dir or (dest / ".xstation_tmp")
-    tmp_base.mkdir(parents=True, exist_ok=True)
-
     is_smb = _is_smb_source(source)
 
     entries = list(source.list_archives())
@@ -114,13 +113,17 @@ def process(
 
     _space_check(pending, dest, is_smb)
 
-    if dry_run:
-        console.print("[dim](dry run — no changes will be made)[/dim]")
-    elif not yes:
-        reply = console.input("[bold]Proceed?[/bold] [y/N] ").strip().lower()
+    if not yes:
+        prompt = "[bold]Proceed?[/bold] [y/N] " if not dry_run else "[bold]Proceed (dry run)?[/bold] [y/N] "
+        reply = console.input(prompt).strip().lower()
         if reply not in ("y", "yes"):
             console.print("[yellow]Aborted.[/yellow]")
             return
+
+    if dry_run:
+        console.print("[dim](dry run — no changes will be made)[/dim]")
+    else:
+        tmp_base.mkdir(parents=True, exist_ok=True)
 
     for entry in entries:
         game_dest = _dest_path(dest, entry.stem)
