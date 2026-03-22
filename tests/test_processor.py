@@ -107,7 +107,7 @@ class TestSkipExisting:
         fake_extractor.extract.side_effect = fake_extract
         mocker.patch("xstation_sd_util.processor.get_extractor", return_value=fake_extractor)
 
-        process(FakeSource(), dest, skip_existing=True)
+        process(FakeSource(), dest, skip_existing=True, yes=True)
         fake_extractor.extract.assert_called_once()
 
 

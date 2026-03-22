@@ -52,6 +52,7 @@ def _check_rar_tool(source_dir: Path | None, is_smb: bool) -> None:
 @click.option("--smb-domain", default=None, help="SMB domain/workgroup.")
 @click.option("--temp-dir", "temp_dir", default=None, type=click.Path(), help="Override temp dir.")
 @click.option("-v", "--verbose", is_flag=True, help="Show each file as extracted.")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompt.")
 def main(
     source: str,
     dest: str,
@@ -63,6 +64,7 @@ def main(
     smb_domain: str | None,
     temp_dir: str | None,
     verbose: bool,
+    yes: bool,
 ) -> None:
     """Set up an xStation SD card from game archives.
 
@@ -108,4 +110,5 @@ def main(
         skip_existing=skip_existing,
         verbose=verbose,
         temp_dir=temp_path,
+        yes=yes,
     )

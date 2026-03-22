@@ -38,6 +38,9 @@ def _space_check(
     dest: Path,
     is_smb: bool,
 ) -> None:
+    n = len(pending)
+    game_word = "game" if n == 1 else "games"
+
     total = 0
     all_unknown = True
 
@@ -61,7 +64,7 @@ def _space_check(
         total += size
 
     if all_unknown and total == 0:
-        console.print("[dim]Space needed: unknown[/dim]")
+        console.print(f"[bold]{n} {game_word} to extract[/bold]  ·  space needed: unknown")
         return
 
     free = shutil.disk_usage(dest).free
@@ -69,10 +72,14 @@ def _space_check(
     free_str = _fmt_bytes(free)
 
     if free >= total:
-        console.print(f"Space: need ~{needed_str}, available {free_str} [green]✓[/green]")
+        console.print(
+            f"[bold]{n} {game_word} to extract[/bold]  ·  "
+            f"need ~{needed_str}, available {free_str} [green]✓[/green]"
+        )
     else:
         console.print(
-            f"Space: need ~{needed_str}, available {free_str} [yellow]— may be insufficient[/yellow]"
+            f"[bold]{n} {game_word} to extract[/bold]  ·  "
+            f"need ~{needed_str}, available {free_str} [yellow]— may be insufficient[/yellow]"
         )
 
 
@@ -83,6 +90,7 @@ def process(
     skip_existing: bool = True,
     verbose: bool = False,
     temp_dir: Path | None = None,
+    yes: bool = False,
 ) -> None:
     tmp_base = temp_dir or (dest / ".xstation_tmp")
     tmp_base.mkdir(parents=True, exist_ok=True)
@@ -99,7 +107,20 @@ def process(
         if not (skip_existing and _is_non_empty(_dest_path(dest, e.stem)))
         and e.stem != SYSTEM_FOLDER
     ]
+
+    if not pending:
+        console.print("[yellow]Nothing to extract.[/yellow]")
+        return
+
     _space_check(pending, dest, is_smb)
+
+    if dry_run:
+        console.print("[dim](dry run — no changes will be made)[/dim]")
+    elif not yes:
+        reply = console.input("[bold]Proceed?[/bold] [y/N] ").strip().lower()
+        if reply not in ("y", "yes"):
+            console.print("[yellow]Aborted.[/yellow]")
+            return
 
     for entry in entries:
         game_dest = _dest_path(dest, entry.stem)
