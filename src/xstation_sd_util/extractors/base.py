@@ -10,6 +10,11 @@ class Extractor(ABC):
         """Extract archive_path into dest_dir (already created)."""
         ...
 
+    @abstractmethod
+    def uncompressed_size(self, archive_path: Path) -> int:
+        """Return total uncompressed bytes in the archive without extracting. -1 if unknown."""
+        ...
+
 
 def apply_single_folder_strip(dest_dir: Path) -> None:
     """

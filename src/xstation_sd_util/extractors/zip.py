@@ -13,3 +13,10 @@ class ZipExtractor(Extractor):
                 if verbose:
                     print(f"  {member.filename}")
                 zf.extract(member, dest_dir)
+
+    def uncompressed_size(self, archive_path: Path) -> int:
+        try:
+            with zipfile.ZipFile(archive_path) as zf:
+                return sum(m.file_size for m in zf.infolist())
+        except Exception:
+            return -1

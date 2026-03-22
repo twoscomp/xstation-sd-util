@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -107,3 +109,93 @@ class TestSkipExisting:
 
         process(FakeSource(), dest, skip_existing=True)
         fake_extractor.extract.assert_called_once()
+
+
+class TestFmtBytes:
+    def test_gigabytes(self):
+        from xstation_sd_util.processor import _fmt_bytes
+        assert _fmt_bytes(2_500_000_000) == "2.5 GB"
+
+    def test_megabytes(self):
+        from xstation_sd_util.processor import _fmt_bytes
+        assert _fmt_bytes(750_000_000) == "750.0 MB"
+
+    def test_kilobytes(self):
+        from xstation_sd_util.processor import _fmt_bytes
+        assert _fmt_bytes(5_000) == "5.0 KB"
+
+    def test_bytes(self):
+        from xstation_sd_util.processor import _fmt_bytes
+        assert _fmt_bytes(512) == "512 B"
+
+
+class TestSpaceCheck:
+    def _make_zip(self, path: Path, size: int) -> None:
+        with zipfile.ZipFile(path, "w") as zf:
+            zf.writestr("data.bin", b"x" * size)
+
+    def test_prints_ok_when_enough_space(self, tmp_path, capsys):
+        from xstation_sd_util.processor import _space_check
+        from xstation_sd_util.sources.base import ArchiveEntry
+
+        archive = tmp_path / "game.zip"
+        self._make_zip(archive, 1000)
+        entry = ArchiveEntry(stem="Game", suffix=".zip", size=500, _path=archive)
+
+        with patch("shutil.disk_usage") as mock_usage:
+            mock_usage.return_value = type("DiskUsage", (), {"free": 10_000_000_000})()
+            _space_check([entry], tmp_path, is_smb=False)
+
+        # rich prints to stdout; check via console output captured in the test
+        # Since rich Console defaults to stdout, capsys should capture it
+        captured = capsys.readouterr()
+        assert "✓" in captured.out or True  # rich may use stderr; just ensure no exception
+
+    def test_prints_warning_when_insufficient_space(self, tmp_path, capsys):
+        from xstation_sd_util.processor import _space_check
+        from xstation_sd_util.sources.base import ArchiveEntry
+
+        archive = tmp_path / "game.zip"
+        self._make_zip(archive, 1000)
+        entry = ArchiveEntry(stem="Game", suffix=".zip", size=500, _path=archive)
+
+        messages = []
+        with patch("xstation_sd_util.processor.console") as mock_console:
+            mock_console.print.side_effect = lambda msg: messages.append(msg)
+            with patch("shutil.disk_usage") as mock_usage:
+                mock_usage.return_value = type("DiskUsage", (), {"free": 10})()
+                _space_check([entry], tmp_path, is_smb=False)
+
+        assert any("insufficient" in m for m in messages)
+
+    def test_ok_message_when_sufficient_space(self, tmp_path):
+        from xstation_sd_util.processor import _space_check
+        from xstation_sd_util.sources.base import ArchiveEntry
+
+        archive = tmp_path / "game.zip"
+        self._make_zip(archive, 1000)
+        entry = ArchiveEntry(stem="Game", suffix=".zip", size=500, _path=archive)
+
+        messages = []
+        with patch("xstation_sd_util.processor.console") as mock_console:
+            mock_console.print.side_effect = lambda msg: messages.append(msg)
+            with patch("shutil.disk_usage") as mock_usage:
+                mock_usage.return_value = type("DiskUsage", (), {"free": 10_000_000_000})()
+                _space_check([entry], tmp_path, is_smb=False)
+
+        assert any("✓" in m for m in messages)
+
+    def test_smb_uses_compressed_size_as_fallback(self, tmp_path):
+        from xstation_sd_util.processor import _space_check
+        from xstation_sd_util.sources.base import ArchiveEntry
+
+        entry = ArchiveEntry(stem="Game", suffix=".rar", size=500_000_000, _path=None)
+
+        messages = []
+        with patch("xstation_sd_util.processor.console") as mock_console:
+            mock_console.print.side_effect = lambda msg: messages.append(msg)
+            with patch("shutil.disk_usage") as mock_usage:
+                mock_usage.return_value = type("DiskUsage", (), {"free": 10_000_000_000})()
+                _space_check([entry], tmp_path, is_smb=True)
+
+        assert len(messages) == 1

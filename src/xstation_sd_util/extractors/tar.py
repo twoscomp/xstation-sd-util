@@ -13,3 +13,10 @@ class TarExtractor(Extractor):
                 if verbose:
                     print(f"  {member.name}")
                 tf.extract(member, dest_dir, filter="data")
+
+    def uncompressed_size(self, archive_path: Path) -> int:
+        try:
+            with tarfile.open(archive_path) as tf:
+                return sum(m.size for m in tf.getmembers() if m.isfile())
+        except Exception:
+            return -1

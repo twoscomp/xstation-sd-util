@@ -15,3 +15,12 @@ class SevenZipExtractor(Extractor):
                     print(f"  {name}")
                 sz.reset()
             sz.extractall(path=dest_dir)
+
+    def uncompressed_size(self, archive_path: Path) -> int:
+        try:
+            import py7zr
+
+            with py7zr.SevenZipFile(archive_path, mode="r") as sz:
+                return sz.archiveinfo().uncompressed
+        except Exception:
+            return -1

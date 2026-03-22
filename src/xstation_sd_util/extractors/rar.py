@@ -24,3 +24,13 @@ class RarExtractor(Extractor):
                 if verbose:
                     print(f"  {member.filename}")
                 rf.extract(member, dest_dir)
+
+    def uncompressed_size(self, archive_path: Path) -> int:
+        try:
+            import rarfile
+
+            _check_unrar()
+            with rarfile.RarFile(archive_path) as rf:
+                return sum(m.file_size for m in rf.infolist())
+        except Exception:
+            return -1

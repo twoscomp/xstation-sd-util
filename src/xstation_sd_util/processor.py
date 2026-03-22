@@ -23,6 +23,59 @@ def _is_non_empty(path: Path) -> bool:
     return path.exists() and any(path.iterdir())
 
 
+def _fmt_bytes(n: int) -> str:
+    if n >= 1_000_000_000:
+        return f"{n / 1_000_000_000:.1f} GB"
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.1f} MB"
+    if n >= 1_000:
+        return f"{n / 1_000:.1f} KB"
+    return f"{n} B"
+
+
+def _space_check(
+    pending: list[ArchiveEntry],
+    dest: Path,
+    is_smb: bool,
+) -> None:
+    total = 0
+    all_unknown = True
+
+    for entry in pending:
+        size = -1
+        if not is_smb and entry.local_path() is not None:
+            try:
+                size = int(get_extractor(entry.suffix).uncompressed_size(entry.local_path()))  # type: ignore[arg-type]
+            except Exception:
+                size = -1
+
+        if size == -1:
+            # Fall back to compressed size as lower bound
+            if entry.size >= 0:
+                size = entry.size
+            else:
+                size = 0
+        else:
+            all_unknown = False
+
+        total += size
+
+    if all_unknown and total == 0:
+        console.print("[dim]Space needed: unknown[/dim]")
+        return
+
+    free = shutil.disk_usage(dest).free
+    needed_str = _fmt_bytes(total)
+    free_str = _fmt_bytes(free)
+
+    if free >= total:
+        console.print(f"Space: need ~{needed_str}, available {free_str} [green]✓[/green]")
+    else:
+        console.print(
+            f"Space: need ~{needed_str}, available {free_str} [yellow]— may be insufficient[/yellow]"
+        )
+
+
 def process(
     source: GameSource,
     dest: Path,
@@ -40,6 +93,13 @@ def process(
     if not entries:
         console.print("[yellow]No archives found in source.[/yellow]")
         return
+
+    pending = [
+        e for e in entries
+        if not (skip_existing and _is_non_empty(_dest_path(dest, e.stem)))
+        and e.stem != SYSTEM_FOLDER
+    ]
+    _space_check(pending, dest, is_smb)
 
     for entry in entries:
         game_dest = _dest_path(dest, entry.stem)
