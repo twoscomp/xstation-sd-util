@@ -125,6 +125,11 @@ def process(
     else:
         tmp_base.mkdir(parents=True, exist_ok=True)
 
+    failures: list[tuple[str, str]] = []
+    extracted = 0
+    skipped_count = 0
+    total = len(pending)
+
     for entry in entries:
         game_dest = _dest_path(dest, entry.stem)
 
@@ -134,15 +139,19 @@ def process(
             continue
 
         if skip_existing and _is_non_empty(game_dest):
+            skipped_count += 1
             console.print(f"[dim]Skipping (exists): {entry.stem}[/dim]")
             continue
 
         if dry_run:
+            idx = extracted + 1
             folder = alpha_folder(entry.stem)
-            console.print(f"[cyan]Would extract:[/cyan] {entry.stem!r} → {folder}/{entry.stem}/")
+            console.print(f"[cyan]Would extract [{idx}/{total}]:[/cyan] {entry.stem!r} → {folder}/{entry.stem}/")
+            extracted += 1
             continue
 
-        console.print(f"[green]Extracting:[/green] {entry.stem}")
+        idx = extracted + len(failures) + 1
+        console.print(f"[green]Extracting [{idx}/{total}]:[/green] {entry.stem}")
         tmp_game_dir = tmp_base / entry.stem
 
         try:
@@ -169,11 +178,29 @@ def process(
             if game_dest.exists():
                 shutil.rmtree(game_dest)
             os.rename(tmp_game_dir, game_dest)
+            extracted += 1
 
         except Exception as exc:
             console.print(f"[red]Error extracting {entry.stem!r}: {exc}[/red]")
+            failures.append((entry.stem, str(exc)))
             if tmp_game_dir.exists():
                 shutil.rmtree(tmp_game_dir, ignore_errors=True)
+
+    # Summary
+    if dry_run:
+        suffix = f", {skipped_count} already exist." if skipped_count else "."
+        console.print(f"\n[bold]{extracted} would be extracted[/bold]{suffix}")
+    else:
+        parts = [f"[green]{extracted} extracted[/green]"]
+        if skipped_count:
+            parts.append(f"{skipped_count} skipped")
+        if failures:
+            parts.append(f"[red]{len(failures)} failed[/red]")
+        console.print("\n[bold]Done.[/bold] " + ", ".join(parts) + ".")
+        if failures:
+            console.print("\n[bold red]Failed archives:[/bold red]")
+            for stem, err in failures:
+                console.print(f"  [red]•[/red] {stem}: {err}")
 
 
 def _is_smb_source(source: GameSource) -> bool:
