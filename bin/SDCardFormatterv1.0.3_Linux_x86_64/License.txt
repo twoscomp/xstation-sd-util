@@ -1,0 +1,181 @@
+END USER LICENSE AGREEMENT
+
+NOTICE:
+BY DOWNLOADING, INSTALLING OR USING THE PRODUCT, THE ENTITY OR INDIVIDUAL 
+ENTERING INTO THIS AGREEMENT AGREES TO BE BOUND BY THE FOLLOWING TERMS. IF YOU 
+DO NOT AGREE WITH ANY OF THESE TERMS, DO NOT DOWNLOAD, INSTALL, OR USE THE 
+PRODUCT; PROMPTLY RETURN (IF APPLICABLE) THE PRODUCT TO THE SDA OR YOUR SDA 
+DISTRIBUTOR. IF YOU REJECT THIS AGREEMENT, YOU WILL NOT ACQUIRE ANY LICENSE TO 
+USE THE PRODUCT. 
+
+This Agreement ("Agreement") is between the entity or individual entering into 
+this Agreement ("You") and the SD Card Association, a California Mutual Benefit 
+Corporation ("SDA"). "You" includes you and your employees and Affiliates. 
+"Affiliate" is defined as an entity which controls, is controlled by, or shares 
+common control with a party where such control may exist through ownership of 
+securities or by contract. In addition to the restrictions imposed under this 
+Agreement, any other usage restrictions contained in the Product installation 
+instructions or release notes shall apply to Your use of the Product. 
+
+1. PRODUCT. 
+"SDA Software" means the object code version of the SD card formatter tool 
+program(s) provided, via delivery or electronic transmission to You. SDA 
+Software includes computer files, enhancements, maintenance modifications, 
+upgrades, updates, bug fixes, and error corrections made available to you by 
+the SDA or its authorized distributor.
+
+"Documentation" means all written or graphical material provided by SDA or its 
+authorized distributor in any medium, including any technical requirements or 
+specifications, relating to the functionality or operation of the SDA Software. 
+
+"Product" means the SDA Software and Documentation. 
+
+2. LICENSE. Subject to the terms of this Agreement, SDA grants You a 
+non-exclusive, non-transferable, terminable (as set forth in Section 5 below), 
+perpetual license for each copy of the SDA Software to do the following:
+(a) install the SDA Software on Your hardware located at a facility owned or 
+controlled by You in the country where You acquired the SDA Software; 
+(b) operate the SDA Software solely for Your own internal business operations 
+solely to format SD Cards owned by You and to use the Documentation solely for 
+such internal use; and
+(c) make one copy of the SDA Software for backup and archival purposes only 
+(collectively a "License"). 
+
+3. RESTRICTIONS: You agree to NOT: 
+(a) disassemble, reverse engineer, decompile, or otherwise attempt to derive 
+any source code for the SDA Software from executable code; 
+(b) rent, lease, network, loan, sublicense, distribute, disclose, or otherwise 
+transfer or provide the SDA Software to any third party (including without 
+limitation, use in a service bureau or shared environment); 
+(c) alter, merge, modify, edit, translate, adapt in any way, or prepare any 
+derivative work based upon the SDA Software;
+(d) remove, obscure, or modify any markings or any notice of proprietary 
+rights; or
+(e) provide a third party with the results of any functional evaluation, or 
+benchmarking, or performance tests, without SDA's prior written approval.
+Notwithstanding the restriction in 3(a) above, if You are a European Community 
+("EC") resident and required for interoperability, SDA agrees to make available 
+to You the information necessary to achieve interoperability to the SDA 
+Software with other programs within the meaning of the EC Directive on the 
+Legal Protection of Computer Programs upon written request.
+
+4. FEEDBACK. If You send or transmit any communications or materials to SDA or 
+any of its authorized distributors or licensors by mail, electronic mail, 
+telephone, or otherwise, suggesting or recommending changes to the Product or 
+any portion thereof ("Feedback"), including without limitation, improvements, 
+new features, or functionality relating thereto, or any comments, questions, 
+suggestions, or the like, all such Feedback is, and will be treated as, 
+non-confidential and non-proprietary. You hereby assign all right, title, and 
+interest in, and to any and all Feedback, and any intellectual property rights 
+in or to such Feedback, to the SDA. The SDA and any of its authorized 
+distributors or licensors are free to use, without any attribution or 
+compensation to any party, any ideas, know-how, concepts, techniques, or other 
+intellectual property rights contained in the Feedback, for any purpose 
+whatsoever, although SDA is not required to use any Feedback.
+5. TERMINATION. This Agreement shall immediately terminate if You breach any of 
+its terms. Upon termination, for any reason, You must uninstall the SDA 
+Software, and either certify the destruction of the SDA Software or return it 
+to SDA. Sections 4, 6, 7, 8, 9, 10, 11, 12, and 13 shall survive termination.
+6. OWNERSHIP OF THE PRODUCT. SDA and/or its licensors retain all right, title, 
+and interest in the SDA Product and all intellectual property, informational, 
+industrial property, and proprietary rights therein. SDA neither grants nor 
+otherwise transfers any rights of ownership in the SDA Product to You. SDA 
+Products are protected by applicable copyright, trade secret, and industrial 
+and intellectual property laws. SDA reserves any rights not expressly granted 
+to You herein.
+7. WARRANTY DISCLAIMER. NEITHER SDA NOR ITS LICENSORS OR DISTRIBUTORS MAKE ANY 
+WARRANTIES, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE WITH RESPECT TO 
+THE PRODUCT. ALL IMPLIED WARRANTIES AS TO THE SATISFACTORY QUALITY, 
+PERFORMANCE, MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR 
+NONINFRINGEMENT ARE EXPRESSLY DISCLAIMED TO THE MAXIMUM EXTENT PERMITTED BY 
+LAW. SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES SO THE 
+ABOVE EXCLUSIONS MAY NOT APPLY TO LICENSEE. SDA NOR ITS LICENSORS OR 
+DISTRIBUTORS WARRANT THAT THE PRODUCTS ARE ERROR-FREE OR THAT THEIR USE WILL BE 
+UNINTERRUPTED. THE SDA IS NOT OBLIGATED TO PROVIDE YOU WITH ANY ENHANCEMENTS, 
+MAINTENANCE MODIFICATIONS, UPGRADES, UPDATES, BUG FIXES, OR ERROR CORRECTIONS 
+FOR THE PRODUCT BUT MAY DO SO IN ITS SOLE DISCRETION.
+8. LIMITATION OF LIABILITY. NEITHER SDA NOR ITS LICENSORS OR DISTRIBUTORS SHALL 
+BE LIABLE FOR SPECIAL, INCIDENTAL, EXEMPLARY, CONSEQUENTIAL, OR INDIRECT 
+DAMAGES RELATED TO THIS AGREEMENT AND/OR THE PRODUCT, INCLUDING WITHOUT 
+LIMITATION, LOST PROFITS, LOST SAVINGS, OR DAMAGES ARISING FROM LOSS OF USE, 
+LOSS OF CONTENT, OR LOSS OF DATA, REGARDLESS OF THE LEGAL THEORY ON WHICH SUCH 
+DAMAGES MAY BE BASED, AND EVEN IF SDA OR ITS LICENSORS AND/OR DISTRIBUTORS HAVE 
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES AND REGARDLESS OF WHETHER ANY 
+REMEDY SET FORTH IN THIS LICENSE FAILS OF ITS ESSENTIAL PURPOSE. BECAUSE SOME 
+STATES/COUNTRIES DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY FOR 
+CONSEQUENTIAL OR INCIDENTAL DAMAGES, THE ABOVE LIMITATION MAY NOT APPLY TO 
+LICENSEE. IN NO EVENT WILL SDA'S AGGREGATE LIABILITY UNDER THIS AGREEMENT 
+EXCEED ONE HUNDRED DOLLARS (USD 100.00). ADDITIONALLY, IN NO EVENT SHALL SDA'S 
+LICENSORS OR DISTRIBUTORS BE LIABLE FOR ANY DAMAGES UNDER THIS AGREEMENT. 
+9. INDEMNIFICATION. You shall indemnify, defend and hold SDA and any and all of 
+its officers, directors, employees, agents, members, consultants, distributors, 
+and licensors (collectively, the "SDA Indemnitees") harmless against any costs, 
+damages, liabilities, and expenses (including attorneys' fees and costs of 
+defense) that such SDA Indemnitee suffers in relation to, arising from, or for 
+the purpose of avoiding any claim or demand from a third party ("Claim") 
+alleging or arising out of Your use of the Products other than as permitted 
+under this Agreement. Notwithstanding anything herein to the contrary, You 
+shall not consent to any settlement or compromise of, or the entry of any 
+judgment with respect to, any third-party claim without the prior written 
+consent of SDA.
+10. EXPORT CONTROLS. You agree not to import, export, re-export, or transfer, 
+directly or indirectly, any part of the Product or any underlying information 
+or technology except in full compliance with all United States, foreign, and 
+other applicable laws and regulations. 
+11. U.S. GOVERNMENT RESTRICTED RIGHTS. The SDA Software under this Agreement is 
+"commercial computer software" as that term is described in 48 C.F.R. 
+252.227-7014(a)(1). If acquired by or on behalf of a civilian agency, the U.S. 
+Government acquires this commercial computer software and/or commercial 
+computer software documentation subject to the terms of this Agreement as 
+specified in 48 C.F.R. 12.212 (Computer Software) and 12.211 (Technical Data) 
+of the Federal Acquisition Regulations ("FAR") and its successors. If acquired 
+by or on behalf of any agency within the Department of Defense ("DOD"), the 
+U.S. Government acquires this commercial computer software and/or commercial 
+computer software documentation subject to the terms of this Agreement as 
+specified in 48 C.F.R. 227.7202 of the DOD FAR Supplement and its successors.
+13. ARBITRATION. Any dispute between You and SDA arising out of this Agreement 
+or the breach or alleged breach thereof, shall be determined by binding 
+arbitration conducted in English. The arbitration shall be held in San 
+Francisco, California, U.S.A., under the current rules of the American 
+Arbitration Association ("AAA"). Arbitration may be conducted by one (1) 
+attorney arbitrator by mutual agreement or by three (3) arbitrators if the 
+parties are unable to agree on a single arbitrator within thirty (30) days of 
+first demand for arbitration. All arbitrators are to be selected from a panel 
+provided by AAA. In the case of a three-arbitrator panel, the chairman and one 
+other arbitrator shall be attorneys at law, and the third arbitrator shall have 
+a background or training in either computer law, computer science, computer 
+engineering, or marketing of computer industry products. The arbitrator(s) 
+shall have the authority to permit discovery, to the extent deemed appropriate 
+by the arbitrator(s), upon request of a party. The costs of the arbitration 
+shall be borne equally pending the arbitrator's award. The award rendered shall 
+be final and binding upon the parties and shall not be subject to appeal to any 
+courts, and may be enforced in any court of competent jurisdiction. Nothing in 
+this Agreement shall be deemed as preventing either party from seeking 
+injunctive or other equitable relief from any court having jurisdiction over 
+the parties and the subject matter of the dispute as necessary to protect 
+either party's confidential information, ownership, or any other proprietary 
+rights. 
+13. MISCELLANEOUS TERMS. The parties hereto are independent contractors. You 
+shall abide by all local, state, federal, and international laws, rules, 
+regulations, and orders applying to Your use of the Products. This Agreement 
+will be governed and construed in accordance with the laws of the State of 
+California without regard to any conflict of laws principles that would require 
+the application of the laws of another jurisdiction. The United Nations on 
+Contracts for the International Sale of Goods and any laws based on the Uniform 
+Computer Information Transactions Act shall not apply to this Agreement. This 
+Agreement constitutes the entire agreement between You and SDA and supersedes 
+any prior or contemporaneous negotiations or agreements, whether oral, written, 
+or displayed electronically, concerning the Product and related subject matter. 
+No modification or waiver of any provision hereof will be effective unless made 
+in a writing signed by both SDA and You. You may not assign or transfer this 
+Agreement or a License to a third party without SDA's prior written consent. 
+Should any provision of this Agreement be invalid or unenforceable, the 
+remainder of the provisions will remain in effect. The parties have agreed that 
+this Agreement and the documents related thereto be drawn up in the English 
+language. Les parties exigent que la presente convention ainsi que les 
+documents qui s'y rattachent soient rediges en anglais.
+YOU ACKNOWLEDGE AND AGREE THAT YOU HAVE READ THIS AGREEMENT AND INTEND TO BE 
+BOUND AS IF YOU HAD SIGNED THIS AGREEMENT IN WRITING. IF YOU ARE ACTING ON 
+BEHALF OF AN ENTITY, YOU WARRANT THAT YOU HAVE THE AUTHORITY TO ENTER INTO THIS 
+AGREEMENT ON BEHALF OF SUCH ENTITY AND BIND SUCH ENTITY TO THE TERMS OF THIS 
+AGREEMENT. 
