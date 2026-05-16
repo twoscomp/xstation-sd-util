@@ -66,6 +66,7 @@ class TestApplySingleFolderStrip:
 class TestSkipExisting:
     def test_non_empty_existing_folder_is_skipped(self, tmp_path, mocker):
         """Non-empty existing game folder is skipped when skip_existing=True."""
+        from xstation_sd_util.dests.local import LocalDest
         from xstation_sd_util.processor import process
         from xstation_sd_util.sources.base import ArchiveEntry, GameSource
 
@@ -79,11 +80,12 @@ class TestSkipExisting:
                 yield ArchiveEntry(stem="Ape Escape", suffix=".zip", size=100, _path=None)
 
         extract_mock = mocker.patch("xstation_sd_util.processor.get_extractor")
-        process(FakeSource(), dest, skip_existing=True)
+        process(FakeSource(), LocalDest(dest), skip_existing=True)
         extract_mock.assert_not_called()
 
     def test_empty_existing_folder_is_reextracted(self, tmp_path, mocker):
         """Empty existing game folder triggers re-extraction."""
+        from xstation_sd_util.dests.local import LocalDest
         from xstation_sd_util.processor import process
         from xstation_sd_util.sources.base import ArchiveEntry, GameSource
 
@@ -107,7 +109,7 @@ class TestSkipExisting:
         fake_extractor.extract.side_effect = fake_extract
         mocker.patch("xstation_sd_util.processor.get_extractor", return_value=fake_extractor)
 
-        process(FakeSource(), dest, skip_existing=True, yes=True)
+        process(FakeSource(), LocalDest(dest), skip_existing=True, yes=True)
         fake_extractor.extract.assert_called_once()
 
 
@@ -144,7 +146,7 @@ class TestSpaceCheck:
 
         with patch("shutil.disk_usage") as mock_usage:
             mock_usage.return_value = type("DiskUsage", (), {"free": 10_000_000_000})()
-            _space_check([entry], tmp_path, is_smb=False)
+            _space_check([entry], tmp_path, is_smb_source=False)
 
         # rich prints to stdout; check via console output captured in the test
         # Since rich Console defaults to stdout, capsys should capture it
@@ -164,7 +166,7 @@ class TestSpaceCheck:
             mock_console.print.side_effect = lambda msg: messages.append(msg)
             with patch("shutil.disk_usage") as mock_usage:
                 mock_usage.return_value = type("DiskUsage", (), {"free": 10})()
-                _space_check([entry], tmp_path, is_smb=False)
+                _space_check([entry], tmp_path, is_smb_source=False)
 
         assert any("insufficient" in m for m in messages)
 
@@ -181,7 +183,7 @@ class TestSpaceCheck:
             mock_console.print.side_effect = lambda msg: messages.append(msg)
             with patch("shutil.disk_usage") as mock_usage:
                 mock_usage.return_value = type("DiskUsage", (), {"free": 10_000_000_000})()
-                _space_check([entry], tmp_path, is_smb=False)
+                _space_check([entry], tmp_path, is_smb_source=False)
 
         assert any("✓" in m for m in messages)
 
@@ -196,6 +198,6 @@ class TestSpaceCheck:
             mock_console.print.side_effect = lambda msg: messages.append(msg)
             with patch("shutil.disk_usage") as mock_usage:
                 mock_usage.return_value = type("DiskUsage", (), {"free": 10_000_000_000})()
-                _space_check([entry], tmp_path, is_smb=True)
+                _space_check([entry], tmp_path, is_smb_source=True)
 
         assert len(messages) == 1

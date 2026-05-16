@@ -4,18 +4,18 @@ CLI tool to set up an [xStation](https://castlemaniagames.com/products/xstation)
 
 The xStation replaces the PS1 optical drive with a microSD card. Games are stored as folders containing disc images (`.bin`/`.cue`, `.iso`, `.ccd`/`.img`). For large libraries, games must be organized into alphabetical subfolders (`A`–`Z`, plus `#` for titles starting with numbers or symbols).
 
-This tool automates both jobs: setting up the SD card system folder and extracting a full game library into the correct structure — in bulk, from a local directory or SMB share.
+This tool automates both jobs: setting up the SD card system folder and extracting a full game library into the correct structure — in bulk, from a local directory or SMB share, to a local path or SMB share.
 
 ## Features
 
 - **`extract`** — bulk-extract game archives onto an SD card
   - Supports `.zip`, `.7z`, `.rar`, `.tar`, `.tar.gz`
-  - Automatically routes games into `A`–`Z` / `#` subfolders
+  - Automatically routes games into `A`–`Z` / `#` subfolders (or `--flat` for no subdirectories)
   - Skips already-extracted games by default (resumable)
   - Per-game progress counter `[N/total]` and failure summary
-  - Atomic placement via temp dir + `os.rename()` — no partial game folders
+  - Atomic placement via temp dir — no partial game folders
   - Dry-run mode to preview without writing anything
-  - Optional SMB source support (TrueNAS, Samba, etc.)
+  - SMB source and/or destination support (TrueNAS, Samba, etc.)
 - **`setup`** — prepare the SD card system folder and install firmware
   - Creates the `00xstation/` system directory
   - Downloads latest firmware from GitHub or installs from a local file/zip
@@ -61,18 +61,24 @@ xstation-sd-util extract [OPTIONS] SOURCE DEST
 
 Arguments:
   SOURCE   Local directory path OR smb://[user:pass@]server/share[/path]
-  DEST     Local path to SD card root
+  DEST     Local path to SD card root OR smb://[user:pass@]server/share[/path]
 
 Options:
-  -n, --dry-run              Show what would happen, don't extract
-      --no-skip-existing     Re-extract even if folder exists
-  -f, --filter GLOB          Only process archives matching pattern
-      --smb-username TEXT    SMB username (overrides URL)
-      --smb-password TEXT    SMB password (prompted if omitted)
-      --smb-domain TEXT      SMB domain/workgroup
-      --temp-dir PATH        Override temp dir (default: DEST/.xstation_tmp/)
-  -v, --verbose              Show each file as extracted
-  -y, --yes                  Skip confirmation prompt
+  -n, --dry-run                Show what would happen, don't extract
+      --no-skip-existing       Re-extract even if folder exists
+  -f, --filter GLOB            Only process archives matching pattern
+      --flat                   No alpha subdirectories — games go directly in DEST
+      --smb-username TEXT      SMB username for source (overrides URL)
+      --smb-password TEXT      SMB password for source (prompted if omitted)
+      --smb-domain TEXT        SMB domain/workgroup for source
+      --dest-smb-username TEXT SMB username for destination (overrides URL)
+      --dest-smb-password TEXT SMB password for destination (prompted if omitted)
+      --dest-smb-domain TEXT   SMB domain/workgroup for destination
+      --temp-dir PATH          Override local temp dir
+                               (default: DEST/.xstation_tmp/ for local dest,
+                                $TMPDIR/xstation_sd_tmp for SMB dest)
+  -v, --verbose                Show each file as extracted
+  -y, --yes                    Skip confirmation prompt
 ```
 
 ```bash
@@ -82,12 +88,29 @@ xstation-sd-util extract --dry-run /mnt/nas/ps1_games /run/media/user/sdcard
 # Extract all archives
 xstation-sd-util extract /mnt/nas/ps1_games /run/media/user/sdcard
 
-# SMB source (pass credentials as options to avoid shell-quoting issues)
+# SMB source → local dest (pass credentials as options to avoid shell-quoting issues)
 xstation-sd-util extract \
   --smb-username myuser \
   --smb-password 'mypassword' \
   'smb://truenas.local/media-all/games/PS1' \
   /run/media/user/sdcard
+
+# Local source → SMB dest (e.g. extracting directly to a NAS share)
+xstation-sd-util extract \
+  --dest-smb-username myuser \
+  --dest-smb-password 'mypassword' \
+  /mnt/local/ps1_games \
+  'smb://truenas.local/sdcard'
+
+# SMB source → SMB dest
+xstation-sd-util extract \
+  --smb-username myuser --smb-password 'mypassword' \
+  --dest-smb-username myuser --dest-smb-password 'mypassword' \
+  'smb://truenas.local/media-all/games/PS1' \
+  'smb://truenas.local/sdcard'
+
+# Flat layout (no A/B/C subdirs) — required for webMAN on PS3
+xstation-sd-util extract --flat /mnt/nas/ps1_games /run/media/user/sdcard
 ```
 
 ### setup
@@ -125,6 +148,7 @@ sudo xstation-sd-util setup /run/media/user/sdcard --format /dev/sdc
 
 ## Output Structure
 
+Default (alphabetical subfolders):
 ```
 /run/media/user/sdcard/
   00xstation/          ← system folder (firmware lives here)
@@ -140,6 +164,15 @@ sudo xstation-sd-util setup /run/media/user/sdcard --format /dev/sdc
       Ape Escape.cue
   B/
     ...
+```
+
+With `--flat` (games directly in root — required for webMAN on PS3):
+```
+/run/media/user/sdcard/
+  00xstation/
+  007 Racing/
+  Ape Escape/
+  ...
 ```
 
 ## Development

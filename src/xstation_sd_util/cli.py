@@ -59,6 +59,9 @@ def cli() -> None:
 @click.option("-v", "--verbose", is_flag=True, help="Show each file as extracted.")
 @click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompt.")
 @click.option("--flat", is_flag=True, help="Extract game folders directly into DEST, skipping alpha subdirectories.")
+@click.option("--dest-smb-username", default=None, help="SMB username for destination (overrides URL).")
+@click.option("--dest-smb-password", default=None, help="SMB password for destination (prompted if omitted).")
+@click.option("--dest-smb-domain", default=None, help="SMB domain/workgroup for destination.")
 def extract(
     source: str,
     dest: str,
@@ -72,21 +75,26 @@ def extract(
     verbose: bool,
     yes: bool,
     flat: bool,
+    dest_smb_username: str | None,
+    dest_smb_password: str | None,
+    dest_smb_domain: str | None,
 ) -> None:
     """Set up an xStation SD card from game archives.
 
     SOURCE: Local directory path OR smb://[user:pass@]server/share[/path]
 
-    DEST: Local path to SD card root
+    DEST: Local path to SD card root OR smb://[user:pass@]server/share[/path]
     """
-    dest_path = Path(dest)
     temp_path = Path(temp_dir) if temp_dir else None
     skip_existing = not no_skip_existing
 
     if source.startswith("smb://"):
         _check_smb_available()
+        if smb_username is None:
+            smb_username = click.prompt("SMB username (source)", default="", show_default=False)
         if smb_password is None:
-            smb_password = click.prompt("SMB password", hide_input=True, default="", show_default=False)
+            smb_password = click.prompt("SMB password (source)", hide_input=True, default="", show_default=False)
+        console.print(f"[dim]Connecting to source as: {smb_username or '(anonymous)'}[/dim]")
 
         from .sources.smb import SmbSource
         game_source = SmbSource(
@@ -106,13 +114,31 @@ def extract(
         from .sources.local import LocalSource
         game_source = LocalSource(source_path, glob_filter=glob_filter)
 
-    if not dry_run:
-        dest_path.mkdir(parents=True, exist_ok=True)
+    if dest.startswith("smb://"):
+        _check_smb_available()
+        if dest_smb_username is None:
+            dest_smb_username = click.prompt("SMB username (dest)", default="", show_default=False)
+        if dest_smb_password is None:
+            dest_smb_password = click.prompt("SMB password (dest)", hide_input=True, default="", show_default=False)
+        console.print(f"[dim]Connecting to dest as: {dest_smb_username or '(anonymous)'}[/dim]")
+
+        from .dests.smb import SmbDest
+        game_dest = SmbDest(
+            url=dest,
+            username=dest_smb_username,
+            password=dest_smb_password,
+            domain=dest_smb_domain,
+        )
+    else:
+        from .dests.local import LocalDest
+        game_dest = LocalDest(Path(dest))
+
+    game_dest.ensure_root(dry_run)
 
     from .processor import process
     process(
         source=game_source,
-        dest=dest_path,
+        dest=game_dest,
         dry_run=dry_run,
         skip_existing=skip_existing,
         verbose=verbose,

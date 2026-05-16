@@ -1,24 +1,16 @@
 from __future__ import annotations
 
-import os
 import shutil
 from pathlib import Path
-from typing import Iterator
 
 from rich.console import Console
 
 from .config import SYSTEM_FOLDER
+from .dests.base import GameDest
 from .extractors.base import apply_single_folder_strip, get_extractor
-from .organizer import alpha_folder
 from .sources.base import ArchiveEntry, GameSource
 
 console = Console()
-
-
-def _dest_path(dest: Path, stem: str, flat: bool = False) -> Path:
-    if flat:
-        return dest / stem
-    return dest / alpha_folder(stem) / stem
 
 
 def _is_non_empty(path: Path) -> bool:
@@ -37,8 +29,8 @@ def _fmt_bytes(n: int) -> str:
 
 def _space_check(
     pending: list[ArchiveEntry],
-    dest: Path,
-    is_smb: bool,
+    check_path: Path,
+    is_smb_source: bool,
 ) -> None:
     n = len(pending)
     game_word = "game" if n == 1 else "games"
@@ -48,14 +40,13 @@ def _space_check(
 
     for entry in pending:
         size = -1
-        if not is_smb and entry.local_path() is not None:
+        if not is_smb_source and entry.local_path() is not None:
             try:
                 size = int(get_extractor(entry.suffix).uncompressed_size(entry.local_path()))  # type: ignore[arg-type]
             except Exception:
                 size = -1
 
         if size == -1:
-            # Fall back to compressed size as lower bound
             if entry.size >= 0:
                 size = entry.size
             else:
@@ -69,7 +60,7 @@ def _space_check(
         console.print(f"[bold]{n} {game_word} to extract[/bold]  ·  space needed: unknown")
         return
 
-    usage_path = dest if dest.exists() else dest.parent
+    usage_path = check_path if check_path.exists() else check_path.parent
     free = shutil.disk_usage(usage_path).free
     needed_str = _fmt_bytes(total)
     free_str = _fmt_bytes(free)
@@ -88,7 +79,7 @@ def _space_check(
 
 def process(
     source: GameSource,
-    dest: Path,
+    dest: GameDest,
     dry_run: bool = False,
     skip_existing: bool = True,
     verbose: bool = False,
@@ -96,8 +87,8 @@ def process(
     yes: bool = False,
     flat: bool = False,
 ) -> None:
-    tmp_base = temp_dir or (dest / ".xstation_tmp")
-    is_smb = _is_smb_source(source)
+    tmp_base = temp_dir or dest.default_tmp_base()
+    is_smb_source = _is_smb_source(source)
 
     entries = list(source.list_archives())
     if not entries:
@@ -106,7 +97,7 @@ def process(
 
     pending = [
         e for e in entries
-        if not (skip_existing and _is_non_empty(_dest_path(dest, e.stem, flat)))
+        if not (skip_existing and dest.is_non_empty(e.stem, flat))
         and e.stem != SYSTEM_FOLDER
     ]
 
@@ -114,7 +105,7 @@ def process(
         console.print("[yellow]Nothing to extract.[/yellow]")
         return
 
-    _space_check(pending, dest, is_smb)
+    _space_check(pending, dest.space_check_path(), is_smb_source)
 
     if not yes:
         prompt = "[bold]Proceed?[/bold] [y/N] " if not dry_run else "[bold]Proceed (dry run)?[/bold] [y/N] "
@@ -134,25 +125,21 @@ def process(
     total = len(pending)
 
     for entry in entries:
-        game_dest = _dest_path(dest, entry.stem, flat)
-
-        # Guard: never touch the system folder
-        if game_dest.parts and game_dest.name == SYSTEM_FOLDER:
+        if entry.stem == SYSTEM_FOLDER:
             console.print(f"[yellow]Skipping reserved name: {entry.stem}[/yellow]")
             continue
 
-        if skip_existing and _is_non_empty(game_dest):
+        if skip_existing and dest.is_non_empty(entry.stem, flat):
             skipped_count += 1
             console.print(f"[dim]Skipping (exists): {entry.stem}[/dim]")
             continue
 
         if dry_run:
             idx = extracted + 1
-            if flat:
-                dest_display = f"{entry.stem}/"
-            else:
-                dest_display = f"{alpha_folder(entry.stem)}/{entry.stem}/"
-            console.print(f"[cyan]Would extract [{idx}/{total}]:[/cyan] {entry.stem!r} → {dest_display}")
+            console.print(
+                f"[cyan]Would extract [{idx}/{total}]:[/cyan] {entry.stem!r} → "
+                f"{dest.path_display(entry.stem, flat)}"
+            )
             extracted += 1
             continue
 
@@ -163,8 +150,7 @@ def process(
         try:
             tmp_game_dir.mkdir(parents=True, exist_ok=True)
 
-            # Resolve archive path (download for SMB)
-            if is_smb:
+            if is_smb_source:
                 archive_path = source.download(entry, tmp_base)  # type: ignore[attr-defined]
                 cleanup_archive = True
             else:
@@ -180,10 +166,7 @@ def process(
 
             apply_single_folder_strip(tmp_game_dir)
 
-            game_dest.parent.mkdir(parents=True, exist_ok=True)
-            if game_dest.exists():
-                shutil.rmtree(game_dest)
-            os.rename(tmp_game_dir, game_dest)
+            dest.place_game(tmp_game_dir, entry.stem, flat)
             extracted += 1
 
         except Exception as exc:
