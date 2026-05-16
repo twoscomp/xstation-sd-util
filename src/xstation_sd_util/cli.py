@@ -58,6 +58,7 @@ def cli() -> None:
 @click.option("--temp-dir", "temp_dir", default=None, type=click.Path(), help="Override temp dir.")
 @click.option("-v", "--verbose", is_flag=True, help="Show each file as extracted.")
 @click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompt.")
+@click.option("--flat", is_flag=True, help="Extract game folders directly into DEST, skipping alpha subdirectories.")
 def extract(
     source: str,
     dest: str,
@@ -70,6 +71,7 @@ def extract(
     temp_dir: str | None,
     verbose: bool,
     yes: bool,
+    flat: bool,
 ) -> None:
     """Set up an xStation SD card from game archives.
 
@@ -116,6 +118,7 @@ def extract(
         verbose=verbose,
         temp_dir=temp_path,
         yes=yes,
+        flat=flat,
     )
 
 

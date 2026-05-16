@@ -15,7 +15,9 @@ from .sources.base import ArchiveEntry, GameSource
 console = Console()
 
 
-def _dest_path(dest: Path, stem: str) -> Path:
+def _dest_path(dest: Path, stem: str, flat: bool = False) -> Path:
+    if flat:
+        return dest / stem
     return dest / alpha_folder(stem) / stem
 
 
@@ -92,6 +94,7 @@ def process(
     verbose: bool = False,
     temp_dir: Path | None = None,
     yes: bool = False,
+    flat: bool = False,
 ) -> None:
     tmp_base = temp_dir or (dest / ".xstation_tmp")
     is_smb = _is_smb_source(source)
@@ -103,7 +106,7 @@ def process(
 
     pending = [
         e for e in entries
-        if not (skip_existing and _is_non_empty(_dest_path(dest, e.stem)))
+        if not (skip_existing and _is_non_empty(_dest_path(dest, e.stem, flat)))
         and e.stem != SYSTEM_FOLDER
     ]
 
@@ -131,7 +134,7 @@ def process(
     total = len(pending)
 
     for entry in entries:
-        game_dest = _dest_path(dest, entry.stem)
+        game_dest = _dest_path(dest, entry.stem, flat)
 
         # Guard: never touch the system folder
         if game_dest.parts and game_dest.name == SYSTEM_FOLDER:
@@ -145,8 +148,11 @@ def process(
 
         if dry_run:
             idx = extracted + 1
-            folder = alpha_folder(entry.stem)
-            console.print(f"[cyan]Would extract [{idx}/{total}]:[/cyan] {entry.stem!r} → {folder}/{entry.stem}/")
+            if flat:
+                dest_display = f"{entry.stem}/"
+            else:
+                dest_display = f"{alpha_folder(entry.stem)}/{entry.stem}/"
+            console.print(f"[cyan]Would extract [{idx}/{total}]:[/cyan] {entry.stem!r} → {dest_display}")
             extracted += 1
             continue
 
